@@ -49,7 +49,6 @@ public class Controller {
   }
 
   //Get the employee details with the given ID
-  @Cacheable("Emp")
   @GetMapping("/employee/{id}")
   ResponseEntity<Object> getEmpByID(@PathVariable int id){
     try {
@@ -87,7 +86,6 @@ public class Controller {
   }
 
   //Update Existing employee detail
-  @CachePut("Emp")
   @PutMapping("/employee/{id}")
   ResponseEntity<Object> updateEmp(@PathVariable int id,@RequestBody Employee emp){
     try {

@@ -6,6 +6,8 @@ import com.example.employeeManager.exception.InvalidSalary;
 import com.example.employeeManager.repository.EmployeeRepo;
 import com.example.employeeManager.repository.IncrementLogsRepo;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.CachePut;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -38,6 +40,7 @@ public class EmployeeServiceImp implements EmployeeService{
   }
 
   @Override
+  @Cacheable("Emp")
   public Employee getEmpDetailById(int id) {
     return employeeRepo.findById(id).get();
   }
@@ -48,6 +51,7 @@ public class EmployeeServiceImp implements EmployeeService{
   }
 
   @Override
+  @CachePut("Emp")
   @Transactional
   public Employee updateEmpById(int id, Employee emp) {
 
