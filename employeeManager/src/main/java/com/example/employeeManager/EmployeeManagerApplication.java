@@ -16,14 +16,8 @@ public class EmployeeManagerApplication {
 	public static void main(String[] args) {
 		SpringApplication.run(EmployeeManagerApplication.class, args);
 	}
-
 	@Bean
-	public RestTemplate restTemplate(){
-		return restTemplate();
-	}
-
-	@Bean
-	public WebClient webClient(){
-		return webClient();
+	public RestTemplate getRestTemplate() {
+		return new RestTemplate();
 	}
 }
