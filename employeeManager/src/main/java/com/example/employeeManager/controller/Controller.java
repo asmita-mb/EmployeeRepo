@@ -7,8 +7,6 @@ import com.example.employeeManager.service.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CachePut;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -111,7 +109,7 @@ public class Controller {
       log.info("Employee with ID {} Deleted Successfully." +
           "Event Name:{}, Session ID {} ", id, "DeleteExistingEmployee", MDC.get("TxId"));
       MDC.clear();
-      return ResponseHandler.generateResponse("Employee Deleted Successfully",HttpStatus.OK,null);
+      return ResponseHandler.generateResponse(empMsg,HttpStatus.OK,null);
     } catch (Exception e){
       return ResponseHandler.generateResponse(e.getMessage(),HttpStatus.MULTI_STATUS,null);
     }
