@@ -36,17 +36,20 @@ public class EmployeeServiceImp implements EmployeeService{
 
   @Override
   public List<Employee> getAllEmpDetails() {
+
     return (List<Employee>) employeeRepo.findAll();
   }
 
   @Override
   @Cacheable("Emp")
   public Employee getEmpDetailById(int id) {
+
     return employeeRepo.findById(id).get();
   }
 
   @Override
   public Employee createNewEmp(Employee emp) {
+
     return employeeRepo.save(emp);
   }
 
