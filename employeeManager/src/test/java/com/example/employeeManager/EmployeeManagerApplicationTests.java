@@ -10,22 +10,16 @@ import com.example.employeeManager.service.EmployeeServiceImp;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.api.function.Executable;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.test.web.reactive.server.WebTestClientConfigurer;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MockMvcBuilder;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -34,13 +28,10 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
-import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -60,38 +51,43 @@ class EmployeeManagerApplicationTests {
   @Mock
   private WebClient webClient;
 
-  @Test
-  public void getAllEmpTest() throws IOException {
+  IncrementLogs logs;
+  Employee emp;
+  List<Employee> empList;
+
+  @BeforeEach
+  public void setup() throws IOException{
     ObjectMapper objectMapper = new ObjectMapper();
 
-    List<Employee> emp =
+    empList =
         objectMapper.readValue(new File("./src/test/resources/employee.json"),
             new TypeReference<List<Employee>>() {});
 
-    Mockito.when(employeeRepo.findAll()).thenReturn(emp);
+    emp =
+        objectMapper.readValue(new File("./src/test/resources/employee_1.json"),
+            Employee.class);
 
-    assertEquals(emp,employeeServiceImp.getAllEmpDetails());
-
-
+    logs =
+        objectMapper.readValue(new File("./src/test/resources/incrementLogs.json"),
+            IncrementLogs.class);
   }
 
   @Test
-  public void getEmpByIDTest() throws IOException {
-    ObjectMapper objectMapper = new ObjectMapper();
-    Employee emp =
-        objectMapper.readValue(new File("./src/test/resources/employee_1.json"),
-           Employee.class);
+  public void getAllEmpTest() {
+    Mockito.when(employeeRepo.findAll()).thenReturn(empList);
+
+    assertEquals(empList,employeeServiceImp.getAllEmpDetails());
+  }
+
+  @Test
+  public void getEmpByIDTest()  {
+
     when(employeeRepo.findById(anyInt())).thenReturn(Optional.ofNullable(emp));
     Assertions.assertEquals( employeeServiceImp.getEmpDetailById(1),emp);
   }
 
   @Test
   public void createEmpTest() throws IOException {
-    ObjectMapper objectMapper = new ObjectMapper();
-    Employee emp =
-        objectMapper.readValue(new File("./src/test/resources/employee_1.json"),
-            Employee.class);
-
     Employee empNew = new Employee();
     empNew.setId(1);
     empNew.setName("Rajan");
@@ -104,14 +100,6 @@ class EmployeeManagerApplicationTests {
 
   @Test
   public void updEmpTest() throws IOException {
-    ObjectMapper objectMapper = new ObjectMapper();
-    Employee emp =
-        objectMapper.readValue(new File("./src/test/resources/employee_1.json"),
-            Employee.class);
-
-    IncrementLogs logs =
-        objectMapper.readValue(new File("./src/test/resources/incrementLogs.json"),
-            IncrementLogs.class);
     int prevSal = emp.getSalary();
     when(employeeRepo.findById(anyInt())).thenReturn(Optional.ofNullable(emp));
     Employee empNew = new Employee();
@@ -139,19 +127,10 @@ class EmployeeManagerApplicationTests {
   @Disabled
   @Test
   public void updEmpTestThrowsException() throws InvalidSalary,IOException {
-    ObjectMapper objectMapper = new ObjectMapper();
-    Employee emp =
-        objectMapper.readValue(new File("./src/test/resources/employee_1.json"),
-            Employee.class);
-
 
   }
   @Test
   public void delEmpById() throws IOException{
-    ObjectMapper objectMapper = new ObjectMapper();
-    Employee emp =
-        objectMapper.readValue(new File("./src/test/resources/employee_1.json"),
-            Employee.class);
     Mockito.when(employeeRepo.findById(anyInt())).thenReturn(Optional.ofNullable(emp));
     Mockito.doNothing().when(employeeRepo).delete(any());
     String msg = employeeServiceImp.deleteEmpById(1);
@@ -162,10 +141,6 @@ class EmployeeManagerApplicationTests {
 
   @Test
   public void getIncEmpTest() throws IOException {
-    ObjectMapper objectMapper = new ObjectMapper();
-    Employee emp =
-        objectMapper.readValue(new File("./src/test/resources/employee_1.json"),
-            Employee.class);
     Mockito
         .when(employeeRepo.findById(anyInt())).thenReturn(Optional.ofNullable(emp));
     Mockito
@@ -180,10 +155,6 @@ class EmployeeManagerApplicationTests {
   @Disabled
   @Test
   public void updIncEmpTest() throws IOException {
-    ObjectMapper objectMapper = new ObjectMapper();
-    Employee emp =
-        objectMapper.readValue(new File("./src/test/resources/employee_1.json"),
-            Employee.class);
     Mockito
         .when(employeeRepo.findById(anyInt())).thenReturn(Optional.ofNullable(emp));
 
