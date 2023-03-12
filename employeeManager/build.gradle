@@ -1,21 +1,119 @@
-plugins {
-	id 'java'
-	id 'org.springframework.boot' version '2.7.9'
-	id 'io.spring.dependency-management' version '1.0.15.RELEASE'
+buildscript {
+	ext {
+		springBootVersion = '2.6.6'
+	}
+
+	repositories {
+		flatDir {
+			dirs 'libs'
+		}
+		maven {
+			url 'https://plugins.gradle.org/m2/'
+		}
+		maven {
+			url "https://packages.confluent.io/maven/"
+		}
+
+		mavenCentral()
+		jcenter()
+		maven {
+			url 'https://gapinc.jfrog.io/gapinc/maven-repos/'
+			credentials {
+
+				username System.getenv("ARTIFACTORY_USERNAME")
+				password System.getenv("ARTIFACTORY_PASSWORD")
+
+
+
+			}
+		}
+		ivy {
+			name "remote_repos_ivy"
+			layout "maven"
+			url 'https://gapinc.jfrog.io/gapinc/maven-repos/'
+			credentials {
+
+				username  System.getenv("ARTIFACTORY_USERNAME")
+				password System.getenv("ARTIFACTORY_PASSWORD")
+
+
+			}
+		}
+	}
+
+
+	dependencies {
+		classpath("io.spring.gradle:dependency-management-plugin:1.0.10.RELEASE")
+		classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath("com.gap.pipes.gradle:pipes-gradle-plugins:+")
+		classpath('com.gap.pipes.gradle:buildaudit-gradle-plugin:+')
+		classpath('com.gap.fedci.gradle:buildaudit-gradle-plugin:+')
+		classpath('com.gap.fedci.gradle:fedci-gradle-plugins:+')
+		classpath('com.gap.gradle.plugins:gap-sonar-plugin:+')
+		classpath('gradle.plugin.com.srcclr:gradle:2.2.3')
+		classpath('com.commercehub.gradle.plugin:gradle-avro-plugin:0.9.1')
+		classpath ('org.unbroken-dome.gradle-plugins:gradle-testsets-plugin:4.0.0')
+
+	}
+
 }
 
-group = 'com.example'
-version = '0.0.1-SNAPSHOT'
-sourceCompatibility = '11'
+apply plugin: 'java'
+apply plugin: 'eclipse'
+apply plugin: 'idea'
+apply plugin: 'org.springframework.boot'
+apply plugin: 'io.spring.dependency-management'
+apply from: 'gradle/idea.gradle'
+apply from: 'gradle/artifactory.gradle'
+apply from: 'gradle/sonar.gradle'
+//apply plugin: 'build-audit'
+apply plugin: 'gap-sonarqube'
+apply plugin: 'publish-buildinfo'
+apply from: 'gradle/coverage.gradle'
 
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
+
+java {
+
+	toolchain {
+
+		languageVersion = JavaLanguageVersion.of(11)
+
 	}
+
 }
 
 repositories {
+	jcenter()
+	mavenLocal()
 	mavenCentral()
+	ivy {
+		name 'remote_repos_ivy'
+		layout 'maven'
+		credentials {
+
+			username System.getenv("ARTIFACTORY_USERNAME")
+			password System.getenv("ARTIFACTORY_PASSWORD")
+
+
+		}
+		url = uri('https://gapinc.jfrog.io/gapinc/maven-repos/')
+	}
+	maven {
+		url 'https://plugins.gradle.org/m2/'
+	}
+	maven {
+		url "http://packages.confluent.io/maven/"
+	}
+	maven {
+		credentials {
+			username  System.getenv("ARTIFACTORY_USERNAME")
+			password System.getenv("ARTIFACTORY_PASSWORD")
+
+
+
+		}
+		url = uri('https://gapinc.jfrog.io/gapinc/maven-repos/')
+	}
 }
 
 dependencies {
@@ -31,10 +129,33 @@ dependencies {
 	testImplementation 'io.projectreactor:reactor-test'
 	testImplementation 'org.junit.jupiter:junit-jupiter-api:5.8.1'
 	testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.8.1'
-
+	implementation 'com.squareup.okhttp3:okhttp:4.10.0'
+	testImplementation 'com.squareup.okhttp3:mockwebserver:4.10.0'
 }
-
 test {
+
+	//jvmArgs "-XX:+UnlockExperimentalVMOptions", "-XX:+UseCGroupMemoryLimitForHeap"
 	useJUnitPlatform()
 }
+
+ext {
+	z = ['**/constants/*', '**/handler/*','**/*Application*, **/*Health*, **/model/*, **/exception/*']
+	cmdb_ci = 'employee manager'
+}
+
+allprojects {
+	group = System.getenv('ARTIFACT_GROUP')
+	version = "$version" != "unspecified" ? "$version" : System.getenv('ARTIFACT_VERSION') ?: '1.0.0-LOCAL'
+
+
+}
+
+configurations.all {
+
+}
+
+
+
+
+
 

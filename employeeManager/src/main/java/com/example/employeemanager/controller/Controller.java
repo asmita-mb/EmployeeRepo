@@ -1,9 +1,9 @@
-package com.example.employeeManager.controller;
+package com.example.employeemanager.controller;
 
 
-import com.example.employeeManager.entity.Employee;
-import com.example.employeeManager.handler.ResponseHandler;
-import com.example.employeeManager.service.EmployeeService;
+import com.example.employeemanager.entity.Employee;
+import com.example.employeemanager.handler.ResponseHandler;
+import com.example.employeemanager.service.EmployeeService;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,10 +28,12 @@ public class Controller {
   @Autowired
   EmployeeService employeeService;
 
+  @Autowired
+  ResponseHandler responseHandler;
 
   //Get all the employees present in the database
   @GetMapping("/employees")
-  ResponseEntity<Object> getAllEmp() {
+  public ResponseEntity<Object> getAllEmp() {
     try {
     MDC.put("TxId", UUID.randomUUID().toString());
     log.info("Event Name:{}, Session ID {} ", "GetAllEmployeesDetails", MDC.get("TxId"));
@@ -39,9 +41,9 @@ public class Controller {
       log.info("All the employee details were retrieved successfully." +
           "Event Name:{}, Session ID {} ", "GetAllEmployeesDetails", MDC.get("TxId"));
       MDC.clear();
-      return ResponseHandler.generateResponse("Successfully retrieved data!", HttpStatus.OK, employees);
+      return responseHandler.generateResponse("Successfully retrieved data!", HttpStatus.OK, employees);
     } catch (Exception e) {
-      return ResponseHandler.generateResponse(e.getMessage(), HttpStatus.MULTI_STATUS, null);
+      return responseHandler.generateResponse(e.getMessage(), HttpStatus.MULTI_STATUS, null);
 
     }
   }
@@ -58,9 +60,9 @@ public class Controller {
         "Event Name:{}, Session ID {} ",id, "GetEmployeesDetailsByID", MDC.get("TxId"));
     MDC.clear();
 
-    return ResponseHandler.generateResponse("Employee Detail retrieved Successfully",HttpStatus.OK,employee);
+    return responseHandler.generateResponse("Employee Detail retrieved Successfully",HttpStatus.OK,employee);
   } catch (Exception e) {
-      return ResponseHandler.generateResponse(e.getMessage(),HttpStatus.MULTI_STATUS,null);
+      return responseHandler.generateResponse(e.getMessage(),HttpStatus.MULTI_STATUS,null);
     }
   }
 
@@ -75,11 +77,11 @@ public class Controller {
       log.info("New Employee with ID {} Created Successfully." +
           "Event Name:{}, Session ID {} ", empNew.getId(), "CreateNewEmployee", MDC.get("TxId"));
       MDC.clear();
-      return ResponseHandler.generateResponse("Employee created successfully",
+      return responseHandler.generateResponse("Employee created successfully",
           HttpStatus.OK,empNew);
     } catch (Exception e){
 
-      return ResponseHandler.generateResponse(e.getMessage(),HttpStatus.MULTI_STATUS,null);
+      return responseHandler.generateResponse(e.getMessage(),HttpStatus.MULTI_STATUS,null);
     }
   }
 
@@ -93,9 +95,9 @@ public class Controller {
       log.info("Employee with ID {} Updated Successfully." +
           "Event Name:{}, Session ID {} ", empNew.getId(), "UpdateEmployeeDetail", MDC.get("TxId"));
       MDC.clear();
-      return ResponseHandler.generateResponse("Employee updated successfully",HttpStatus.OK,empNew);
+      return responseHandler.generateResponse("Employee updated successfully",HttpStatus.OK,empNew);
     } catch (Exception e){
-      return ResponseHandler.generateResponse(e.getMessage(),HttpStatus.MULTI_STATUS,null);
+      return responseHandler.generateResponse(e.getMessage(),HttpStatus.MULTI_STATUS,null);
     }
   }
 
@@ -109,9 +111,9 @@ public class Controller {
       log.info("Employee with ID {} Deleted Successfully." +
           "Event Name:{}, Session ID {} ", id, "DeleteExistingEmployee", MDC.get("TxId"));
       MDC.clear();
-      return ResponseHandler.generateResponse(empMsg,HttpStatus.OK,null);
+      return responseHandler.generateResponse(empMsg,HttpStatus.OK,null);
     } catch (Exception e){
-      return ResponseHandler.generateResponse(e.getMessage(),HttpStatus.MULTI_STATUS,null);
+      return responseHandler.generateResponse(e.getMessage(),HttpStatus.MULTI_STATUS,null);
     }
   }
 
@@ -125,9 +127,9 @@ public class Controller {
       log.info("Increment of Employee with ID {} retrieved Successfully." +
           "Event Name:{}, Session ID {} ", id, "GetSalaryIIncrement", MDC.get("TxId"));
       MDC.clear();
-      return ResponseHandler.generateResponse("Increment Retrived Successfully",HttpStatus.OK,emp);
+      return responseHandler.generateResponse("Increment Retrived Successfully",HttpStatus.OK,emp);
     } catch (Exception e){
-      return ResponseHandler.generateResponse(e.getMessage(),HttpStatus.MULTI_STATUS,null);
+      return responseHandler.generateResponse(e.getMessage(),HttpStatus.MULTI_STATUS,null);
     }
   }
 
@@ -142,10 +144,10 @@ public class Controller {
               "Event Name:{}, Session ID {} ", emp.getSalary(), emp.getId(),
           "UpdateSalaryWithIncrement", MDC.get("TxId"));
       MDC.clear();
-      return ResponseHandler.generateResponse("Employee Increment added successfully",
+      return responseHandler.generateResponse("Employee Increment added successfully",
           HttpStatus.OK,emp);
     } catch (Exception e){
-      return ResponseHandler.generateResponse(e.getMessage(),HttpStatus.MULTI_STATUS,null);
+      return responseHandler.generateResponse(e.getMessage(),HttpStatus.MULTI_STATUS,null);
     }
   }
 

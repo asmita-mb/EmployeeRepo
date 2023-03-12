@@ -1,12 +1,12 @@
-package com.example.employeeManager;
+package com.example.employeemanager.service;
 
-
-import com.example.employeeManager.entity.Employee;
-import com.example.employeeManager.entity.IncrementLogs;
-import com.example.employeeManager.exception.InvalidSalary;
-import com.example.employeeManager.repository.EmployeeRepo;
-import com.example.employeeManager.repository.IncrementLogsRepo;
-import com.example.employeeManager.service.EmployeeServiceImp;
+import com.example.employeemanager.controller.Controller;
+import com.example.employeemanager.entity.Employee;
+import com.example.employeemanager.entity.IncrementLogs;
+import com.example.employeemanager.exception.InvalidSalary;
+import com.example.employeemanager.handler.ResponseHandler;
+import com.example.employeemanager.repository.EmployeeRepo;
+import com.example.employeemanager.repository.IncrementLogsRepo;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.Assertions;
@@ -25,19 +25,25 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class EmployeeManagerApplicationTests {
+public class ServiceTest {
   @InjectMocks
   private EmployeeServiceImp employeeServiceImp;
+
+  @InjectMocks
+  private ResponseHandler responseHandler;
 
   @Mock
   private EmployeeRepo employeeRepo;
@@ -51,12 +57,18 @@ class EmployeeManagerApplicationTests {
   @Mock
   private WebClient webClient;
 
+  @Mock
+  private EmployeeServiceImp service;
+
+  @InjectMocks
+  private Controller controller;
+
   IncrementLogs logs;
   Employee emp;
   List<Employee> empList;
 
   @BeforeEach
-  public void setup() throws IOException{
+  public void setup() throws IOException {
     ObjectMapper objectMapper = new ObjectMapper();
 
     empList =
@@ -108,7 +120,6 @@ class EmployeeManagerApplicationTests {
     empNew.setSalary(500);
     empNew.setDesignation("Developer");
 
-    emp.setSalary(empNew.getSalary());
     when(employeeRepo.save(any())).thenReturn(emp);
 
     IncrementLogs incLog = new IncrementLogs();
@@ -119,15 +130,22 @@ class EmployeeManagerApplicationTests {
 
     when(incrementLogsRepo.save(any())).thenReturn(incLog);
 
-    Employee savedEmployee = employeeServiceImp.updateEmpById(1,emp);
+    Employee savedEmployee = employeeServiceImp.updateEmpById(1,empNew);
     Assertions.assertEquals(savedEmployee,empNew);
     Assertions.assertEquals(incLog,logs);
   }
 
-  @Disabled
   @Test
   public void updEmpTestThrowsException() throws InvalidSalary,IOException {
-
+    when(employeeRepo.findById(anyInt())).thenReturn(Optional.ofNullable(emp));
+    Employee empNew = new Employee();
+    empNew.setId(1);
+    empNew.setName("Rajan");
+    empNew.setSalary(50);
+    empNew.setDesignation("Developer");
+    when(employeeRepo.save(any())).thenReturn(emp);
+    Assertions.assertThrows(InvalidSalary.class,
+        () -> employeeServiceImp.updateEmpById(1,empNew));
   }
   @Test
   public void delEmpById() throws IOException{
@@ -145,11 +163,20 @@ class EmployeeManagerApplicationTests {
         .when(employeeRepo.findById(anyInt())).thenReturn(Optional.ofNullable(emp));
     Mockito
         .when(restTemplate.postForEntity(anyString(),any(),any()))
-          .thenReturn(new ResponseEntity(emp, HttpStatus.OK));
+        .thenReturn(new ResponseEntity(emp, HttpStatus.OK));
     Employee empNew = employeeServiceImp.getEmpIncrementById(1);
 
     assertEquals(empNew,emp);
 
+  }
+
+  @Test
+  public void responseHandlerTest() {
+    Map<String,Object> map = new HashMap<>();
+    map.put("message", "Sucess");
+    map.put("status", HttpStatus.OK);
+    map.put("data", emp);
+    Assertions.assertNotNull(responseHandler.generateResponse("Sucess",HttpStatus.OK,emp));
   }
 
   @Disabled
@@ -158,19 +185,16 @@ class EmployeeManagerApplicationTests {
     Mockito
         .when(employeeRepo.findById(anyInt())).thenReturn(Optional.ofNullable(emp));
 
-    Mockito
-        .when(webClient.post().uri(anyString()).bodyValue(any()).retrieve()
-            .bodyToMono(Employee.class)
-            .block())
-        .thenReturn(emp);
-    Mockito
-        .when(employeeServiceImp.updateEmpById(anyInt(),any()))
-        .thenReturn(emp);
-    Employee empNew = employeeServiceImp.getEmpIncrementById(1);
+    /** webClient = WebClient.builder()
+     .exchangeFunction(clientRequest ->
+     Mono.just(ClientResponse.
+     .header("content-type", "application/json")
+     .body("{ \"key\" : \"value\"}")
+     .build())
+     ).build();**/
 
-    assertEquals(empNew,emp);
+    Employee empNew = employeeServiceImp.incrementEmpSalaryById(1);
 
+    assertNotNull(empNew);
   }
-
-
 }

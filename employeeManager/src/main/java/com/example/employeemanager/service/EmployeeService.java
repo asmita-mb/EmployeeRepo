@@ -1,6 +1,6 @@
-package com.example.employeeManager.service;
+package com.example.employeemanager.service;
 
-import com.example.employeeManager.entity.Employee;
+import com.example.employeemanager.entity.Employee;
 
 public interface EmployeeService {
   Iterable<Employee> getAllEmpDetails();

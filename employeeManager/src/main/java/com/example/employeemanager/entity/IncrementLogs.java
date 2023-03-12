@@ -1,6 +1,5 @@
-package com.example.employeeManager.entity;
+package com.example.employeemanager.entity;
 
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

@@ -1,0 +1,34 @@
+apply plugin: 'org.sonarqube'
+ext.analysisMode = project.hasProperty('sonarAnalysisMode') ? project.getProperty('sonarAnalysisMode') : 'preview'
+
+sonarqube {
+
+    properties {
+        property "sonar.projectName", "employeeManager"
+        property "sonar.projectKey", "employeeManager"
+        property "sonar.host.url", "https://sonar.gaptech.com/"
+        property "sonar.issuesReport.html.enable", true
+      	property "sonar.login","amahapa"
+      	property "sonar.password","India@1234567890"
+        // property "sonar.analysis.mode", analysisMode
+        property "sonar.preview.includePlugins", "buildbreaker,java"
+        property "sonar.scm.disabled", "true"
+        property "sonar.language", "java"
+        property "sonar.includePlugins", "java"
+        property "sonar.junit.reportsPath", "${project.buildDir}/test-results"
+        property "sonar.java.source", "1.11"
+        property "sonar.issuesReport.html.enable", true
+        property "sonar.issuesReport.html.location", "${project.reporting.baseDir}/sonar"
+        property "sonar.report.export.path", "sonar-report.html"
+        property 'sonar.java.coveragePlugin', 'jacoco'
+        property "sonar.jacoco.reportPaths", "${project.buildDir}/sonar"
+        property "sonar.groovy.file.suffixes","**/*.java"
+       // property "sonar.exclusions", project.coverageExclusions.join(',')
+       // property "sonar.coverage.exclusions", project.coverageExclusions.join(',')
+        if (analysisMode.equals("preview")) {
+            property "sonar.projectDate", "${new Date().next().format("yyyy-MM-dd'T'HH:mm:ssZ")}"
+        }
+    }
+}
+
+

@@ -1,13 +1,15 @@
-package com.example.employeeManager.handler;
+package com.example.employeemanager.handler;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Component;
 
 import java.util.HashMap;
 import java.util.Map;
 
+@Component
 public class ResponseHandler {
-  public static ResponseEntity<Object> generateResponse(String msg, HttpStatus status,Object obj){
+  public ResponseEntity<Object> generateResponse(String msg, HttpStatus status,Object obj){
     Map<String, Object> map = new HashMap<String, Object>();
     map.put("message", msg);
     map.put("status", status.value());
